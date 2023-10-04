@@ -1,0 +1,4 @@
+rootProject.name = 'cloud-storage'
+include 'client'
+include 'server'
+

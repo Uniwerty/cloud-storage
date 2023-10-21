@@ -23,13 +23,6 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Str
                     Command.QUIT, new QuitHandler()
             );
 
-    /**
-     * Handles a message {@code String} read from {@code Channel}.
-     *
-     * @param ctx {@link ChannelHandlerContext} of the current {@code ChannelHandler}
-     * @param msg the message {@code String} to handle
-     * @throws Exception if an error occurred during handling
-     */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         logger.info("Message from {} client: {}", loginHandler.getClientLogin(), msg);
@@ -45,35 +38,16 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Str
         }
     }
 
-    /**
-     * Handles a channel register.
-     *
-     * @param ctx {@link ChannelHandlerContext} of the current {@code ChannelHandler}
-     * @throws Exception if an error occurred during handling
-     */
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         logger.info("New client connected");
     }
 
-    /**
-     * Handles a channel closing.
-     *
-     * @param ctx {@link ChannelHandlerContext} of the current {@code ChannelHandler}
-     * @throws Exception if an error occurred during handling
-     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         logger.info("Client {} disconnected", loginHandler.getClientLogin());
     }
 
-    /**
-     * Handles a caught exception.
-     *
-     * @param ctx   {@link ChannelHandlerContext} of the current {@code ChannelHandler}
-     * @param cause the {@link Throwable} caught
-     * @throws Exception if an error occurred during handling
-     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("Exception occurred: {}", cause.getMessage());

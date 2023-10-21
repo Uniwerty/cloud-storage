@@ -1,5 +1,5 @@
 rootProject.name = 'cloud-storage'
 include 'client'
 include 'server'
-include 'shared'
+include 'common'
 

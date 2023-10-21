@@ -17,18 +17,6 @@ public class StorageClient {
     private final String host;
     private final int port;
 
-    public static void main(String[] args) {
-        try {
-            if (validateCommandLineArguments(args)) {
-                String host = args[0];
-                int port = Integer.parseInt(args[1]);
-                new StorageClient(host, port).start();
-            }
-        } catch (Exception e) {
-            logger.error("Exception occurred: {}", e.getMessage());
-        }
-    }
-
     public StorageClient(String host, int port) {
         this.host = host;
         this.port = port;
@@ -51,6 +39,10 @@ public class StorageClient {
         }
     }
 
+    public static void logError(String message) {
+        logger.error("Exception occurred: {}", message);
+    }
+
     private void sendMessages(Channel channel) {
         while (channel.isOpen()) {
             String message = inScanner.nextLine();
@@ -59,13 +51,5 @@ public class StorageClient {
                 break;
             }
         }
-    }
-
-    private static boolean validateCommandLineArguments(String[] args) {
-        if (args == null || args.length != 2) {
-            logger.error("Invalid arguments. Please enter server host and port.");
-            return false;
-        }
-        return true;
     }
 }

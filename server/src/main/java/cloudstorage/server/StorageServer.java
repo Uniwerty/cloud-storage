@@ -14,16 +14,6 @@ public class StorageServer {
     private static final Logger logger = LoggerFactory.getLogger(StorageServer.class);
     private final int port;
 
-    public static void main(String[] args) {
-        try {
-            if (validateCommandLineArguments(args)) {
-                new StorageServer(Integer.parseInt(args[0])).run();
-            }
-        } catch (Exception e) {
-            logger.error("Exception occurred: {}", e.getMessage());
-        }
-    }
-
     public StorageServer(final int port) {
         this.port = port;
     }
@@ -45,11 +35,7 @@ public class StorageServer {
         }
     }
 
-    private static boolean validateCommandLineArguments(final String[] args) {
-        if (args == null || args.length != 1) {
-            logger.error("Invalid arguments. Please enter server port.");
-            return false;
-        }
-        return true;
+    public static void logError(String message) {
+        logger.error("Exception occurred: {}", message);
     }
 }

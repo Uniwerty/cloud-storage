@@ -1,13 +1,11 @@
 package cloudstorage.handler;
 
+import cloudstorage.command.Command;
 import io.netty.channel.*;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * The {@link ServerMessageHandler} implementation for cloud storage server
- */
 public class StorageServerMessageHandler extends ServerMessageHandler {
     private static final String WHITESPACE_REGEX = "\\s+";
     private static final Map<String, String> clientIdentifiers = new ConcurrentHashMap<>();
@@ -47,8 +45,7 @@ public class StorageServerMessageHandler extends ServerMessageHandler {
      * @param ctx       {@link ChannelHandlerContext} of the current {@code ChannelHandler}
      * @param arguments the command and its arguments
      */
-    private void registerClient(final ChannelHandlerContext ctx,
-                                final String[] arguments) {
+    private void registerClient(ChannelHandlerContext ctx, String[] arguments) {
         if (checkInvalidArguments(ctx, arguments, Command.REGISTER)) {
             return;
         }
@@ -75,8 +72,7 @@ public class StorageServerMessageHandler extends ServerMessageHandler {
      * @param ctx       {@link ChannelHandlerContext} of the current {@code ChannelHandler}
      * @param arguments the command and its arguments
      */
-    private void authenticateClient(final ChannelHandlerContext ctx,
-                                    final String[] arguments) {
+    private void authenticateClient(ChannelHandlerContext ctx, String[] arguments) {
         if (checkInvalidArguments(ctx, arguments, Command.LOGIN)) {
             return;
         }
@@ -116,7 +112,7 @@ public class StorageServerMessageHandler extends ServerMessageHandler {
      *
      * @param ctx {@link ChannelHandlerContext} of the current {@code ChannelHandler}
      */
-    private void disconnectClient(final ChannelHandlerContext ctx) {
+    private void disconnectClient(ChannelHandlerContext ctx) {
         ctx.close();
     }
 
@@ -125,7 +121,7 @@ public class StorageServerMessageHandler extends ServerMessageHandler {
      *
      * @param ctx {@link ChannelHandlerContext} of the current {@code ChannelHandler}
      */
-    private void helpClient(final ChannelHandlerContext ctx) {
+    private void helpClient(ChannelHandlerContext ctx) {
         StringBuilder sb = new StringBuilder();
         sb.append("Available commands:").append(System.lineSeparator());
         for (Command command : Command.values()) {
@@ -139,7 +135,7 @@ public class StorageServerMessageHandler extends ServerMessageHandler {
      *
      * @param ctx {@link ChannelHandlerContext} of the current {@code ChannelHandler}
      */
-    private void handleUnknownCommand(final ChannelHandlerContext ctx) {
+    private void handleUnknownCommand(ChannelHandlerContext ctx) {
         ctx.channel().writeAndFlush("Unknown command given. Use help to see available commands.");
     }
 
@@ -151,9 +147,9 @@ public class StorageServerMessageHandler extends ServerMessageHandler {
      * @param command   the specified {@link Command}
      * @return {@code true} if the {@code arguments} are correct, {@code false} otherwise
      */
-    private boolean checkInvalidArguments(final ChannelHandlerContext ctx,
-                                          final String[] arguments,
-                                          final Command command) {
+    private boolean checkInvalidArguments(ChannelHandlerContext ctx,
+                                          String[] arguments,
+                                          Command command) {
         if (arguments.length != command.getArgumentsNumber() + 1) {
             ctx.channel().writeAndFlush(
                     String.format(

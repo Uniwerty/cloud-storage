@@ -1,14 +1,10 @@
-package cloudstorage.handler;
+package cloudstorage.command;
 
-/**
- * The server commands enumeration
- */
 public enum Command {
     REGISTER(3, "<login> <password> <password>", "register a new account"),
     LOGIN(2, "<login> <password>", "login to the server"),
     QUIT(0, "", "disconnect from the server"),
     HELP(0, "", "see available commands");
-
 
     private final int argumentsNumber;
     private final String arguments;

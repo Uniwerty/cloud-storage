@@ -5,9 +5,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The abstract client message handler class
- */
 public abstract class ClientMessageHandler extends SimpleChannelInboundHandler<String> {
     protected static final Logger logger = LoggerFactory.getLogger(ClientMessageHandler.class);
 

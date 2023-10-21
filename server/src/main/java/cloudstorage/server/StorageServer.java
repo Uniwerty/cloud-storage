@@ -10,18 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cloudstorage.channel.ServerChannelInitializer;
 
-/**
- * The cloud storage {@link Server} implementation
- */
-public class StorageServer implements Server {
+public class StorageServer {
     private static final Logger logger = LoggerFactory.getLogger(StorageServer.class);
     private final int port;
 
-    /**
-     * Binds cloud storage server to the specified port and runs it.
-     *
-     * @param args command line arguments
-     */
     public static void main(String[] args) {
         try {
             if (validateCommandLineArguments(args)) {
@@ -32,21 +24,10 @@ public class StorageServer implements Server {
         }
     }
 
-    /**
-     * Constructs a new {@code StorageServer} to run.
-     *
-     * @param port the server port
-     */
     public StorageServer(final int port) {
         this.port = port;
     }
 
-    /**
-     * Runs the server.
-     *
-     * @throws Exception if an error occurred during server's working
-     */
-    @Override
     public void run() throws Exception {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -64,12 +45,6 @@ public class StorageServer implements Server {
         }
     }
 
-    /**
-     * Checks whether the specified command line arguments is correct for server's work.
-     *
-     * @param args arguments to validate
-     * @return {@code true} if the {@code args} is correct, {@code false} otherwise
-     */
     private static boolean validateCommandLineArguments(final String[] args) {
         if (args == null || args.length != 1) {
             logger.error("Invalid arguments. Please enter server port.");

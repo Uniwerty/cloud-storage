@@ -1,5 +1,3 @@
-// The main script of all subprojects
-
 plugins {
     id 'java'
 }

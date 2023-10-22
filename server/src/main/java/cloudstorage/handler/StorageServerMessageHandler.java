@@ -15,7 +15,6 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Str
     private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final Logger logger = LoggerFactory.getLogger(StorageServerMessageHandler.class);
     private static final AuthenticationService authService = new AuthenticationService();
-    private final LoginHandler loginHandler = new LoginHandler();
     private final AttributeKey<String> userKey = AttributeKey.valueOf("user");
     private final UnknownCommandHandler unknownCmdHandler = new UnknownCommandHandler();
     private final Map<Command, CommandHandler> commandHandlers =

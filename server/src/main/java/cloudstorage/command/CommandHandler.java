@@ -1,6 +1,7 @@
 package cloudstorage.command;
 
 import cloudstorage.service.AuthenticationService;
+import cloudstorage.service.StorageService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -8,6 +9,7 @@ import org.slf4j.Logger;
 
 public interface CommandHandler {
     AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
+    AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
 
     void handle(ChannelHandlerContext ctx, String[] arguments) throws Exception;
 

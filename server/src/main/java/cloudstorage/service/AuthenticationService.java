@@ -1,6 +1,5 @@
 package cloudstorage.service;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -8,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AuthenticationService {
     private final Map<String, String> userIdentifiers = new ConcurrentHashMap<>();
-    private final Set<String> authorizedUsers = new HashSet<>();
+    private final Set<String> authorizedUsers = ConcurrentHashMap.newKeySet();
 
     public boolean isUserRegistered(String login) {
         return userIdentifiers.containsKey(login);

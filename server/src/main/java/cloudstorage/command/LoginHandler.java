@@ -3,20 +3,17 @@ package cloudstorage.command;
 import cloudstorage.service.AuthenticationService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static cloudstorage.command.ArgumentsChecker.checkInvalidArguments;
 
 public class LoginHandler implements CommandHandler {
+    private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
-    private final AuthenticationService authService;
     private String clientLogin = "unauthorized";
     private int loginAttempts = 3;
-
-    public LoginHandler(AuthenticationService authService) {
-        this.authService = authService;
-    }
 
     @Override
     public void handle(ChannelHandlerContext ctx, String[] arguments) {
@@ -24,6 +21,7 @@ public class LoginHandler implements CommandHandler {
             return;
         }
         Channel channel = ctx.channel();
+        AuthenticationService authService = channel.attr(AUTH_KEY).get();
         String login = arguments[1];
         String password = arguments[2];
         if (authService.isUserAuthorized(login)) {

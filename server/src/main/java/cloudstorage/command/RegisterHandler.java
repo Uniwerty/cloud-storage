@@ -3,14 +3,12 @@ package cloudstorage.command;
 import cloudstorage.service.AuthenticationService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static cloudstorage.command.CommandHandler.checkInvalidArguments;
 
 public class RegisterHandler implements CommandHandler {
-    private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final Logger logger = LoggerFactory.getLogger(RegisterHandler.class);
 
     @Override

@@ -20,7 +20,6 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Str
     private final Map<Command, CommandHandler> commandHandlers =
             Map.of(
                     Command.REGISTER, new RegisterHandler(),
-                    Command.LOGIN, loginHandler,
                     Command.LOGIN, new LoginHandler(),
                     Command.HELP, new HelpHandler(),
                     Command.QUIT, new QuitHandler()

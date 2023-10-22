@@ -11,6 +11,10 @@ public class StorageService {
         Files.createDirectory(getUserPath(user));
     }
 
+    public void moveFile(String user, String from, String to) throws IOException {
+        Files.move(getUserPath(user, from), getUserPath(user, to));
+    }
+
     private Path getUserPath(String user) {
         return getUserPath(user, "");
     }

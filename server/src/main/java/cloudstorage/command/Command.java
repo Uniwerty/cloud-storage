@@ -3,6 +3,7 @@ package cloudstorage.command;
 public enum Command {
     REGISTER(3, "<login> <password> <password>", "register a new account"),
     LOGIN(2, "<login> <password>", "login to the server"),
+    MOVE(2, "<oldPath> <newPath>", "move a file on the server"),
     QUIT(0, "", "disconnect from the server"),
     HELP(0, "", "see available commands");
 

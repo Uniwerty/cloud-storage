@@ -14,7 +14,7 @@ public class AuthenticationService {
     }
 
     public boolean isUserAuthorized(String login) {
-        return authorizedUsers.contains(login);
+        return !login.equals("unauthorized") && authorizedUsers.contains(login);
     }
 
     public void registerUser(String login, String password) {

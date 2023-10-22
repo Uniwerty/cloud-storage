@@ -7,17 +7,16 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cloudstorage.command.ArgumentsChecker.checkInvalidArguments;
+import static cloudstorage.command.CommandHandler.checkInvalidArguments;
 
 public class LoginHandler implements CommandHandler {
-    private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
     private final AttributeKey<String> userKey = AttributeKey.valueOf("user");
     private int loginAttempts = 3;
 
     @Override
     public void handle(ChannelHandlerContext ctx, String[] arguments) {
-        if (checkInvalidArguments(ctx, arguments, Command.LOGIN)) {
+        if (checkInvalidArguments(ctx, arguments, Command.LOGIN, logger)) {
             return;
         }
         Channel channel = ctx.channel();

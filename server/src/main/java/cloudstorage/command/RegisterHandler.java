@@ -7,7 +7,7 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static cloudstorage.command.ArgumentsChecker.checkInvalidArguments;
+import static cloudstorage.command.CommandHandler.checkInvalidArguments;
 
 public class RegisterHandler implements CommandHandler {
     private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
@@ -15,7 +15,7 @@ public class RegisterHandler implements CommandHandler {
 
     @Override
     public void handle(ChannelHandlerContext ctx, String[] arguments) {
-        if (checkInvalidArguments(ctx, arguments, Command.REGISTER)) {
+        if (checkInvalidArguments(ctx, arguments, Command.REGISTER, logger)) {
             return;
         }
         Channel channel = ctx.channel();

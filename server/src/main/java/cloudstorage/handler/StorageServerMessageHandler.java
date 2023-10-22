@@ -16,18 +16,20 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Str
     private static final Logger logger = LoggerFactory.getLogger(StorageServerMessageHandler.class);
     private static final AuthenticationService authService = new AuthenticationService();
     private final LoginHandler loginHandler = new LoginHandler();
+    private final AttributeKey<String> userKey = AttributeKey.valueOf("user");
     private final UnknownCommandHandler unknownCmdHandler = new UnknownCommandHandler();
     private final Map<Command, CommandHandler> commandHandlers =
             Map.of(
                     Command.REGISTER, new RegisterHandler(),
                     Command.LOGIN, loginHandler,
+                    Command.LOGIN, new LoginHandler(),
                     Command.HELP, new HelpHandler(),
                     Command.QUIT, new QuitHandler()
             );
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        logger.info("Message from {} client: {}", loginHandler.getClientLogin(), msg);
+        logger.info("Message from {} client: {}", ctx.channel().attr(userKey).get(), msg);
         String[] arguments = msg.trim().split(WHITESPACE_REGEX);
         if (emptyMessageReceived(ctx, arguments)) {
             return;
@@ -43,12 +45,13 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Str
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         logger.info("New client connected");
+        ctx.channel().attr(userKey).set("unauthorized");
         ctx.channel().attr(AUTH_KEY).set(authService);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("Client {} disconnected", loginHandler.getClientLogin());
+        logger.info("Client {} disconnected", ctx.channel().attr(userKey).get());
     }
 
     @Override

@@ -12,7 +12,7 @@ import static cloudstorage.command.ArgumentsChecker.checkInvalidArguments;
 public class LoginHandler implements CommandHandler {
     private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final Logger logger = LoggerFactory.getLogger(LoginHandler.class);
-    private String clientLogin = "unauthorized";
+    private final AttributeKey<String> userKey = AttributeKey.valueOf("user");
     private int loginAttempts = 3;
 
     @Override
@@ -47,12 +47,8 @@ public class LoginHandler implements CommandHandler {
             return;
         }
         authService.authorizeUser(login);
-        clientLogin = login;
+        channel.attr(userKey).set(login);
         logger.info("Client {} authorized successfully", login);
         channel.writeAndFlush("Authorized successfully.");
-    }
-
-    public String getClientLogin() {
-        return clientLogin;
     }
 }

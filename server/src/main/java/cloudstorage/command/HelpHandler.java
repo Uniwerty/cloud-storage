@@ -1,5 +1,6 @@
 package cloudstorage.command;
 
+import common.command.Command;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,6 +3,7 @@ package cloudstorage.handler;
 import cloudstorage.command.*;
 import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
+import common.command.Command;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;

@@ -1,6 +1,7 @@
 package cloudstorage.command;
 
 import cloudstorage.service.AuthenticationService;
+import common.command.Command;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;

@@ -2,6 +2,7 @@ package cloudstorage.command;
 
 import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
+import common.command.Command;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;

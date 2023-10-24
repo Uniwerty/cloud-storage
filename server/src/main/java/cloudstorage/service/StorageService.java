@@ -8,11 +8,29 @@ public class StorageService {
     private static final Path ROOT = Path.of(System.getProperty("user.dir"));
 
     public void createUserDirectory(String user) throws IOException {
-        Files.createDirectory(getUserPath(user));
+        Path userPath = getUserPath(user);
+        if (Files.notExists(userPath)) {
+            Files.createDirectory(userPath);
+        }
+    }
+
+    public void storeFile(String user, String path, byte[] bytes) throws IOException {
+        Path filePath = getUserPath(user, path);
+        createMissingDirectories(filePath);
+        Files.write(filePath, bytes);
     }
 
     public void moveFile(String user, String from, String to) throws IOException {
-        Files.move(getUserPath(user, from), getUserPath(user, to));
+        Path destinationPath = getUserPath(user, to);
+        createMissingDirectories(destinationPath);
+        Files.move(getUserPath(user, from), destinationPath);
+    }
+
+    private void createMissingDirectories(Path filePath) throws IOException {
+        Path parentPath = filePath.getParent();
+        if (parentPath != null && Files.notExists(parentPath)) {
+            Files.createDirectories(parentPath);
+        }
     }
 
     private Path getUserPath(String user) {

@@ -3,6 +3,8 @@ package cloudstorage.command;
 import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
 import common.command.Command;
+import common.message.ClientCommand;
+import common.message.ServerResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -11,20 +13,25 @@ import org.slf4j.Logger;
 public interface CommandHandler {
     AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
+    AttributeKey<String> USER_KEY = AttributeKey.valueOf("user");
+    AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
 
-    void handle(ChannelHandlerContext ctx, String[] arguments) throws Exception;
+    void handle(ChannelHandlerContext ctx, ClientCommand command) throws Exception;
 
     static boolean checkInvalidArguments(ChannelHandlerContext ctx,
-                                         String[] arguments,
+                                         ClientCommand clientCommand,
                                          Command command,
                                          Logger logger) {
-        if (arguments.length != command.getArgumentsNumber() + 1) {
+        if (clientCommand.arguments().length != command.getArgumentsNumber()) {
             logger.info("Invalid arguments number for {} given", command.getName());
             ctx.channel().writeAndFlush(
-                    String.format(
-                            "Invalid arguments number. Enter %s %s",
-                            command.getName(),
-                            command.getArguments()
+                    new ServerResponse(
+                            false,
+                            String.format(
+                                    "Invalid arguments number. Enter %s %s",
+                                    command.getName(),
+                                    command.getArguments()
+                            )
                     )
             );
             return true;
@@ -32,20 +39,23 @@ public interface CommandHandler {
         return false;
     }
 
-    static boolean checkClientAuthorization(Channel channel,
-                                            String login,
-                                            Command command,
-                                            Logger logger) {
+    static boolean checkUnauthorizedClient(Channel channel,
+                                           String login,
+                                           Command command,
+                                           Logger logger) {
         if (!channel.attr(AUTH_KEY).get().isUserAuthorized(login)) {
             logger.info("{} command execution refused: client is not authorized", command.getName());
             channel.writeAndFlush(
-                    String.format(
-                            "Cannot execute %s command from unauthorized client. Please log in",
-                            command.getName()
+                    new ServerResponse(
+                            false,
+                            String.format(
+                                    "Cannot execute %s command from unauthorized client. Please log in",
+                                    command.getName()
+                            )
                     )
             );
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 }

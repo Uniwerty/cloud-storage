@@ -1,10 +1,13 @@
 package cloudstorage.client;
 
 import cloudstorage.channel.ClientChannelInitializer;
+import common.command.Command;
+import common.message.ClientCommand;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +51,8 @@ public class StorageClient {
             String message = inScanner.nextLine();
             channel.writeAndFlush(message);
             if (message.equals(QUIT_COMMAND)) {
+            ClientCommand command = getCommand(message);
+            channel.writeAndFlush(command);
                 break;
             }
         }

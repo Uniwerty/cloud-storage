@@ -1,9 +1,18 @@
 package cloudstorage.handler;
 
-import cloudstorage.command.*;
+import cloudstorage.command.CommandHandler;
+import cloudstorage.command.HelpHandler;
+import cloudstorage.command.LoadHandler;
+import cloudstorage.command.LoginHandler;
+import cloudstorage.command.MoveHandler;
+import cloudstorage.command.QuitHandler;
+import cloudstorage.command.RegisterHandler;
+import cloudstorage.command.StoreHandler;
+import cloudstorage.command.UnknownCommandHandler;
 import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
 import common.command.Command;
+import common.message.ClientCommand;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;
@@ -12,14 +21,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class StorageServerMessageHandler extends SimpleChannelInboundHandler<String> {
-    private static final String WHITESPACE_REGEX = "\\s+";
+public class StorageServerMessageHandler extends SimpleChannelInboundHandler<ClientCommand> {
     private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
+    private static final AttributeKey<String> USER_KEY = AttributeKey.valueOf("user");
     private static final Logger logger = LoggerFactory.getLogger(StorageServerMessageHandler.class);
     private static final AuthenticationService authService = new AuthenticationService();
     private static final StorageService storageService = new StorageService();
-    private final AttributeKey<String> userKey = AttributeKey.valueOf("user");
     private final UnknownCommandHandler unknownCmdHandler = new UnknownCommandHandler();
     private final Map<Command, CommandHandler> commandHandlers =
             Map.of(
@@ -31,44 +39,37 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Str
             );
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        logger.info("Message from {} client: {}", ctx.channel().attr(userKey).get(), msg);
-        String[] arguments = msg.trim().split(WHITESPACE_REGEX);
-        if (emptyMessageReceived(ctx, arguments)) {
-            return;
-        }
+    protected void channelRead0(ChannelHandlerContext ctx, ClientCommand msg) throws Exception {
+        logger.info(
+                "Message from {} client: {} {}",
+                ctx.channel().attr(USER_KEY).get(),
+                msg.name(),
+                msg.arguments()
+        );
         try {
-            Command command = Enum.valueOf(Command.class, arguments[0].toUpperCase());
-            commandHandlers.getOrDefault(command, unknownCmdHandler).handle(ctx, arguments);
+            Command command = Enum.valueOf(Command.class, msg.name().toUpperCase());
+            commandHandlers.getOrDefault(command, unknownCmdHandler).handle(ctx, msg);
         } catch (IllegalArgumentException e) {
-            unknownCmdHandler.handle(ctx, arguments);
+            unknownCmdHandler.handle(ctx, msg);
         }
     }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         logger.info("New client connected");
-        ctx.channel().attr(userKey).set("unauthorized");
+        ctx.channel().attr(USER_KEY).set("unauthorized");
         ctx.channel().attr(AUTH_KEY).set(authService);
         ctx.channel().attr(STORAGE_KEY).set(storageService);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("Client {} disconnected", ctx.channel().attr(userKey).get());
+        logger.info("Client {} disconnected", ctx.channel().attr(USER_KEY).get());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.error("Exception occurred: {}", cause.getMessage());
         ctx.close();
-    }
-
-    private static boolean emptyMessageReceived(ChannelHandlerContext ctx, String[] arguments) {
-        if (arguments.length == 0) {
-            ctx.channel().writeAndFlush("Empty message received. Try again");
-            return true;
-        }
-        return false;
     }
 }

@@ -1,6 +1,7 @@
 package cloudstorage.client;
 
-import cloudstorage.channel.ClientChannelInitializer;
+import cloudstorage.channel.ClientChannelManager;
+import cloudstorage.handler.ClientFileLoader;
 import common.command.Command;
 import common.message.ClientCommand;
 import io.netty.bootstrap.Bootstrap;
@@ -11,6 +12,7 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,7 @@ public class StorageClient {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workerGroup)
                     .channel(NioSocketChannel.class)
-                    .handler(new ClientChannelInitializer())
+                    .handler(new ClientChannelManager())
                     .option(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture future = bootstrap.connect(host, port).sync();
             sendMessages(future.channel());
@@ -61,6 +63,7 @@ public class StorageClient {
             channel.writeAndFlush(command);
             if (checkCommandType(command, Command.STORE)) {
                 sendFile(channel, command.arguments()[0]);
+                sendFile(channel, command);
             } else if (checkCommandType(command, Command.QUIT)) {
                 break;
             }
@@ -83,8 +86,9 @@ public class StorageClient {
                 && command.getName().equals(clientCommand.name());
     }
 
-    private void sendFile(Channel channel, String filename) throws IOException, InterruptedException {
-        Path filepath = Path.of(filename);
+    private void sendFile(Channel channel, ClientCommand command) throws IOException, InterruptedException {
+        channel.writeAndFlush(command);
+        Path filepath = Path.of(command.arguments()[0]);
         if (Files.size(filepath) <= MAX_NORMAL_FILE_SIZE) {
             sendNormalFile(channel, filepath);
         }

@@ -1,5 +1,6 @@
 package cloudstorage.handler;
 
+import cloudstorage.channel.ServerChannelManager;
 import cloudstorage.command.CommandHandler;
 import cloudstorage.command.HelpHandler;
 import cloudstorage.command.LoadHandler;
@@ -11,8 +12,10 @@ import cloudstorage.command.StoreHandler;
 import cloudstorage.command.UnknownCommandHandler;
 import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
+import common.channel.ChannelManager;
 import common.command.Command;
 import common.message.ClientCommand;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.AttributeKey;
@@ -22,10 +25,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 public class StorageServerMessageHandler extends SimpleChannelInboundHandler<ClientCommand> {
+    private static final AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
     private static final AttributeKey<String> USER_KEY = AttributeKey.valueOf("user");
     private static final Logger logger = LoggerFactory.getLogger(StorageServerMessageHandler.class);
+    private static final ServerChannelManager channelManager = new ServerChannelManager();
     private static final AuthenticationService authService = new AuthenticationService();
     private static final StorageService storageService = new StorageService();
     private final UnknownCommandHandler unknownCmdHandler = new UnknownCommandHandler();
@@ -58,9 +63,10 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Cli
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         logger.info("New client connected");
-        ctx.channel().attr(USER_KEY).set("unauthorized");
+        ctx.channel().attr(MANAGER_KEY).set(channelManager);
         ctx.channel().attr(AUTH_KEY).set(authService);
         ctx.channel().attr(STORAGE_KEY).set(storageService);
+        ctx.channel().attr(USER_KEY).set("unauthorized");
     }
 
     @Override

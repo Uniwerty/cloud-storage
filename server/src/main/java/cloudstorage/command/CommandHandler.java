@@ -2,6 +2,7 @@ package cloudstorage.command;
 
 import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
+import common.channel.ChannelManager;
 import common.command.Command;
 import common.message.ClientCommand;
 import common.message.ServerResponse;
@@ -11,6 +12,7 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 
 public interface CommandHandler {
+    AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
     AttributeKey<String> USER_KEY = AttributeKey.valueOf("user");

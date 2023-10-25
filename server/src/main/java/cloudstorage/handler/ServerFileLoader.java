@@ -2,6 +2,7 @@ package cloudstorage.handler;
 
 import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
+import common.channel.ChannelManager;
 import common.message.ServerResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -10,12 +11,13 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileLoaderHandler extends SimpleChannelInboundHandler<byte[]> {
+public class ServerFileLoader extends SimpleChannelInboundHandler<byte[]> {
+    private static final AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
     private static final AttributeKey<String> USER_KEY = AttributeKey.valueOf("user");
     private static final AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
-    private static final Logger logger = LoggerFactory.getLogger(FileLoaderHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerFileLoader.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] fileBytes) throws Exception {
@@ -30,8 +32,7 @@ public class FileLoaderHandler extends SimpleChannelInboundHandler<byte[]> {
             logger.info("Ignored data from unauthorized client");
             channel.writeAndFlush(new ServerResponse(false, "The data was ignored"));
         }
-        channel.pipeline().remove(ctx.name());
-        channel.pipeline().remove("bytesDecoder");
-        ctx.fireChannelReadComplete();
+        channel.attr(MANAGER_KEY).get().setStandardHandlers(channel);
+        channel.flush();
     }
 }

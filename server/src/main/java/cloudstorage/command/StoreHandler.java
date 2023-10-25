@@ -1,12 +1,9 @@
 package cloudstorage.command;
 
-import cloudstorage.handler.FileLoaderHandler;
 import common.command.Command;
 import common.message.ClientCommand;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +19,8 @@ public class StoreHandler implements CommandHandler {
             return;
         }
         Channel channel = ctx.channel();
-        ChannelPipeline pipeline = channel.pipeline();
-        pipeline.addFirst("bytesDecoder", new ByteArrayDecoder())
-                .addAfter("bytesDecoder", "fileLoader", new FileLoaderHandler());
+        channel.flush();
+        channel.attr(MANAGER_KEY).get().setFileUploadHandlers(channel);
         String login = channel.attr(USER_KEY).get();
         if (checkUnauthorizedClient(channel, login, Command.STORE, logger)) {
             return;

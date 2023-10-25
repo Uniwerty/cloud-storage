@@ -71,7 +71,10 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Cli
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("Client {} disconnected", ctx.channel().attr(USER_KEY).get());
+        Channel channel = ctx.channel();
+        logger.info("Client {} disconnected", channel.attr(USER_KEY).get());
+        channel.attr(AUTH_KEY).get().logOutUser(channel.attr(USER_KEY).get());
+        channel.attr(USER_KEY).set("unauthorized");
     }
 
     @Override

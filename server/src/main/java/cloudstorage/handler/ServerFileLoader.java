@@ -23,15 +23,10 @@ public class ServerFileLoader extends SimpleChannelInboundHandler<byte[]> {
     protected void channelRead0(ChannelHandlerContext ctx, byte[] fileBytes) throws Exception {
         Channel channel = ctx.channel();
         String login = channel.attr(USER_KEY).get();
-        if (channel.attr(AUTH_KEY).get().isUserAuthorized(login)) {
-            String filepath = channel.attr(FILE_KEY).get();
-            channel.attr(STORAGE_KEY).get().storeFile(login, filepath, fileBytes);
-            logger.info("Stored {} from {} successfully", filepath, login);
-            channel.writeAndFlush(new ServerResponse(true, "Stored successfully"));
-        } else {
-            logger.info("Ignored data from unauthorized client");
-            channel.writeAndFlush(new ServerResponse(false, "The data was ignored"));
-        }
+        String filepath = channel.attr(FILE_KEY).get();
+        channel.attr(STORAGE_KEY).get().storeFile(login, filepath, fileBytes);
+        logger.info("Stored {} from {} successfully", filepath, login);
+        channel.writeAndFlush(new ServerResponse(true, "Stored successfully"));
         channel.attr(MANAGER_KEY).get().setStandardHandlers(channel);
     }
 }

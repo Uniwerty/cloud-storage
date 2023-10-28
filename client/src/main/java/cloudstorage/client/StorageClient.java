@@ -100,7 +100,6 @@ public class StorageClient {
         ChannelPromise onWritePromise = channel.newPromise();
         channel.writeAndFlush(Files.readAllBytes(filepath), onWritePromise);
         onWritePromise.sync();
-        channel.pipeline().remove("byteArrayEncoder");
         channelManager.setStandardHandlers(channel);
     }
     }

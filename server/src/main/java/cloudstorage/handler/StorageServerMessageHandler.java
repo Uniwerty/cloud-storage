@@ -39,6 +39,7 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Cli
                     Command.REGISTER, new RegisterHandler(),
                     Command.LOGIN, new LoginHandler(),
                     Command.STORE, new StoreHandler(),
+                    Command.LOAD, new LoadHandler(),
                     Command.MOVE, new MoveHandler(),
                     Command.HELP, new HelpHandler(),
                     Command.QUIT, new QuitHandler()

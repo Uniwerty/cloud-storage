@@ -20,6 +20,10 @@ public class StorageService {
         Files.write(filePath, bytes);
     }
 
+    public byte[] downloadFile(String user, String path) throws IOException {
+        return Files.readAllBytes(getUserPath(user, path));
+    }
+
     public void moveFile(String user, String from, String to) throws IOException {
         Path destinationPath = getUserPath(user, to);
         createMissingDirectories(destinationPath);

@@ -1,7 +1,6 @@
 package cloudstorage.client;
 
 import cloudstorage.channel.ClientChannelManager;
-import cloudstorage.handler.ClientFileLoader;
 import common.channel.ChannelManager;
 import common.command.Command;
 import common.message.ClientCommand;
@@ -13,7 +12,6 @@ import io.netty.channel.ChannelPromise;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +23,7 @@ import java.util.Scanner;
 
 public class StorageClient {
     private static final AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
+    private static final AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     private static final String WHITESPACE_REGEX = "\\s+";
     private static final int MAX_NORMAL_FILE_SIZE = 4096;
     private static final Logger logger = LoggerFactory.getLogger(StorageClient.class);
@@ -47,8 +46,10 @@ public class StorageClient {
                     .handler(channelManager)
                     .option(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture future = bootstrap.connect(host, port).sync();
-            sendMessages(future.channel());
-            future.channel().closeFuture().sync();
+            Channel channel = future.channel();
+            channel.attr(MANAGER_KEY).set(channelManager);
+            sendMessages(channel);
+            channel.closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
             inScanner.close();
@@ -66,6 +67,8 @@ public class StorageClient {
             channel.writeAndFlush(command);
             if (checkCommandType(command, Command.STORE)) {
                 sendFile(channel, command);
+            } else if (checkCommandType(command, Command.LOAD)) {
+                receiveSmallFile(channel, command);
             } else if (checkCommandType(command, Command.QUIT)) {
                 break;
             }
@@ -102,5 +105,10 @@ public class StorageClient {
         onWritePromise.sync();
         channelManager.setStandardHandlers(channel);
     }
+
+    private void receiveSmallFile(Channel channel, ClientCommand command) {
+        channel.attr(FILE_KEY).set(command.arguments()[1]);
+        channelManager.setFileUploadHandlers(channel);
+        logger.info("Ready to file uploading");
     }
 }

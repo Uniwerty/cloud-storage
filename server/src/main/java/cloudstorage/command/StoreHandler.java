@@ -24,9 +24,6 @@ public class StoreHandler implements CommandHandler {
             return;
         }
         channel.attr(MANAGER_KEY).get().setFileUploadHandlers(channel);
-        if (checkInvalidArguments(ctx, command, Command.STORE, logger)) {
-            return;
-        }
         channel.attr(FILE_KEY).set(command.arguments()[1]);
         logger.info("File storing allowed");
     }

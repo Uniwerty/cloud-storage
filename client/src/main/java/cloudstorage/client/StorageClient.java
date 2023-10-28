@@ -2,6 +2,7 @@ package cloudstorage.client;
 
 import cloudstorage.channel.ClientChannelManager;
 import cloudstorage.handler.ClientFileLoader;
+import common.channel.ChannelManager;
 import common.command.Command;
 import common.message.ClientCommand;
 import io.netty.bootstrap.Bootstrap;
@@ -13,7 +14,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
-import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +24,11 @@ import java.nio.file.Path;
 import java.util.Scanner;
 
 public class StorageClient {
+    private static final AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
     private static final String WHITESPACE_REGEX = "\\s+";
     private static final int MAX_NORMAL_FILE_SIZE = 4096;
     private static final Logger logger = LoggerFactory.getLogger(StorageClient.class);
+    private final ChannelManager channelManager = new ClientChannelManager();
     private final Scanner inScanner = new Scanner(System.in);
     private final String host;
     private final int port;
@@ -41,7 +44,7 @@ public class StorageClient {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workerGroup)
                     .channel(NioSocketChannel.class)
-                    .handler(new ClientChannelManager())
+                    .handler(channelManager)
                     .option(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture future = bootstrap.connect(host, port).sync();
             sendMessages(future.channel());
@@ -62,7 +65,6 @@ public class StorageClient {
             ClientCommand command = getCommand(message);
             channel.writeAndFlush(command);
             if (checkCommandType(command, Command.STORE)) {
-                sendFile(channel, command.arguments()[0]);
                 sendFile(channel, command);
             } else if (checkCommandType(command, Command.QUIT)) {
                 break;
@@ -87,21 +89,19 @@ public class StorageClient {
     }
 
     private void sendFile(Channel channel, ClientCommand command) throws IOException, InterruptedException {
-        channel.writeAndFlush(command);
         Path filepath = Path.of(command.arguments()[0]);
         if (Files.size(filepath) <= MAX_NORMAL_FILE_SIZE) {
-            sendNormalFile(channel, filepath);
+            sendSmallFile(channel, filepath);
         }
     }
 
-    private static void sendNormalFile(Channel channel, Path filepath) throws IOException, InterruptedException {
-        channel.pipeline().addLast(
-                "byteArrayEncoder",
-                new ByteArrayEncoder()
-        );
+    private void sendSmallFile(Channel channel, Path filepath) throws IOException, InterruptedException {
+        channelManager.setFileDownloadHandlers(channel);
         ChannelPromise onWritePromise = channel.newPromise();
         channel.writeAndFlush(Files.readAllBytes(filepath), onWritePromise);
         onWritePromise.sync();
         channel.pipeline().remove("byteArrayEncoder");
+        channelManager.setStandardHandlers(channel);
+    }
     }
 }

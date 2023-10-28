@@ -33,6 +33,5 @@ public class ServerFileLoader extends SimpleChannelInboundHandler<byte[]> {
             channel.writeAndFlush(new ServerResponse(false, "The data was ignored"));
         }
         channel.attr(MANAGER_KEY).get().setStandardHandlers(channel);
-        channel.flush();
     }
 }

@@ -9,8 +9,6 @@ import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 
-import java.util.Set;
-
 public abstract class ChannelManager extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {
@@ -19,30 +17,26 @@ public abstract class ChannelManager extends ChannelInitializer<SocketChannel> {
 
     public void setStandardHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
-        Set<String> previousHandlers = pipeline.toMap().keySet();
-        channel.pipeline()
-                .addFirst("jsonEncoder", jsonEncoderImpl())
-                .addFirst("main", mainChannelHandlerImpl())
-                .addFirst("jsonDecoder", jsonDecoderImpl())
-                .addFirst("jsonBytesDecoder", new ByteArrayDecoder())
-                .addFirst("jsonDelimiter", new JsonObjectDecoder());
-        removeAll(pipeline, previousHandlers);
+        removeAll(pipeline);
+        pipeline.addLast("jsonDelimiter", new JsonObjectDecoder())
+                .addLast("jsonBytesDecoder", new ByteArrayDecoder())
+                .addLast("jsonDecoder", jsonDecoderImpl())
+                .addLast("main", mainChannelHandlerImpl())
+                .addLast("jsonEncoder", jsonEncoderImpl());
     }
 
     public void setFileDownloadHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
-        Set<String> previousHandlers = pipeline.toMap().keySet();
-        channel.pipeline().addFirst("bytesEncoder", new ByteArrayEncoder());
-        removeAll(pipeline, previousHandlers);
+        removeAll(pipeline);
+        pipeline.addLast("fileBytesEncoder", new ByteArrayEncoder());
     }
 
     public void setFileUploadHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
-        Set<String> previousHandlers = pipeline.toMap().keySet();
-        channel.pipeline()
-                .addFirst("fileUploader", fileUploader())
-                .addFirst("fileBytesDecoder", new ByteArrayDecoder());
-        removeAll(pipeline, previousHandlers);
+        removeAll(pipeline);
+        pipeline.addLast("fileBytesDecoder", new ByteArrayDecoder())
+                .addLast("fileUploader", fileUploader())
+                .addLast("jsonEncoder", jsonEncoderImpl());
     }
 
     protected abstract ChannelHandler jsonDecoderImpl();
@@ -53,10 +47,11 @@ public abstract class ChannelManager extends ChannelInitializer<SocketChannel> {
 
     protected abstract ChannelHandler fileUploader();
 
-    private void removeAll(ChannelPipeline pipeline, Set<String> handlers) {
-        for (String handler : handlers) {
+    private void removeAll(ChannelPipeline pipeline) {
+        for (String handler : pipeline.toMap().keySet()) {
             pipeline.remove(handler);
         }
+        pipeline.channel().flush();
     }
 }
 

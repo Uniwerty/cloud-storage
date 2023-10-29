@@ -26,11 +26,17 @@ public class MessageSender implements ResponseHandler {
         channel.writeAndFlush(command);
     }
 
+    /**
+     * Sets the indicator that server confirmation on command required
+     *
+     * @param channel the connection {@link Channel}
+     * @param command the {@link ClientCommand} which execution needs to be allowed.
+     */
     private static void setConfirmRequirement(Channel channel, ClientCommand command) {
-        if (checkCommandType(command, Command.STORE)) {
+        if (checkCommandTypeMatching(command, Command.STORE)) {
             channel.attr(NEED_CONFIRM_KEY).set(true);
             channel.attr(FILE_KEY).set(command.arguments()[0]);
-        } else if (checkCommandType(command, Command.LOAD)) {
+        } else if (checkCommandTypeMatching(command, Command.LOAD)) {
             channel.attr(NEED_CONFIRM_KEY).set(true);
             channel.attr(FILE_KEY).set(command.arguments()[1]);
         } else {
@@ -49,7 +55,7 @@ public class MessageSender implements ResponseHandler {
         return new ClientCommand(command[0], arguments);
     }
 
-    private static boolean checkCommandType(ClientCommand clientCommand, Command command) {
+    private static boolean checkCommandTypeMatching(ClientCommand clientCommand, Command command) {
         return command.getArgumentsNumber() == clientCommand.arguments().length
                 && command.getName().equals(clientCommand.name());
     }

@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * The class for downloading file to server after confirmation
+ */
 public class StoreResponseHandler implements ResponseHandler {
     private static final Logger logger = LoggerFactory.getLogger(StoreResponseHandler.class);
 

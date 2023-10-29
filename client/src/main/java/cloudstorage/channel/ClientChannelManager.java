@@ -1,6 +1,6 @@
 package cloudstorage.channel;
 
-import cloudstorage.handler.ClientFileLoader;
+import cloudstorage.handler.ClientFileUploader;
 import cloudstorage.handler.StorageClientMessageHandler;
 import common.channel.ChannelManager;
 import common.handler.JsonDecoder;
@@ -27,6 +27,6 @@ public class ClientChannelManager extends ChannelManager {
 
     @Override
     protected ChannelHandler fileUploader() {
-        return new ClientFileLoader();
+        return new ClientFileUploader();
     }
 }

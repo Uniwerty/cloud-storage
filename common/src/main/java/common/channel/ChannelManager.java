@@ -9,12 +9,20 @@ import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.json.JsonObjectDecoder;
 
+/**
+ * The class for initializing channels and changing handlers dynamically.
+ */
 public abstract class ChannelManager extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel channel) throws Exception {
         setStandardHandlers(channel);
     }
 
+    /**
+     * Sets handlers to handle standard messages between server and client.
+     *
+     * @param channel a {@link Channel} to set handlers
+     */
     public void setStandardHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
         removeAll(pipeline);
@@ -25,12 +33,20 @@ public abstract class ChannelManager extends ChannelInitializer<SocketChannel> {
                 .addLast("jsonEncoder", jsonEncoderImpl());
     }
 
+    /**
+     * Sets handlers to download file after request received.
+     * @param channel a {@link Channel} to set handlers
+     */
     public void setFileDownloadHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
         removeAll(pipeline);
         pipeline.addLast("fileBytesEncoder", new ByteArrayEncoder());
     }
 
+    /**
+     * Sets handlers to upload file after request sent
+     * @param channel a {@link Channel} to set handlers
+     */
     public void setFileUploadHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
         removeAll(pipeline);

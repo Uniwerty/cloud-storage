@@ -11,12 +11,15 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServerFileLoader extends SimpleChannelInboundHandler<byte[]> {
+/**
+ * The class for uploading file from client to server
+ */
+public class ServerFileUploader extends SimpleChannelInboundHandler<byte[]> {
     private static final AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     private static final AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
     private static final AttributeKey<String> USER_KEY = AttributeKey.valueOf("user");
     private static final AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
-    private static final Logger logger = LoggerFactory.getLogger(ServerFileLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServerFileUploader.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] fileBytes) throws Exception {

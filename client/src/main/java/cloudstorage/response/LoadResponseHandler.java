@@ -4,6 +4,9 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * The class for preparing client handlers to upload file from server
+ */
 public class LoadResponseHandler implements ResponseHandler {
     private static final Logger logger = LoggerFactory.getLogger(LoadResponseHandler.class);
 

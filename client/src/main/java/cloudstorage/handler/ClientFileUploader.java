@@ -11,10 +11,13 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ClientFileLoader extends SimpleChannelInboundHandler<byte[]> {
+/**
+ * The class for uploading file from server to client
+ */
+public class ClientFileUploader extends SimpleChannelInboundHandler<byte[]> {
     private static final AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     private static final AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
-    private static final Logger logger = LoggerFactory.getLogger(ClientFileLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientFileUploader.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, byte[] fileBytes) throws Exception {

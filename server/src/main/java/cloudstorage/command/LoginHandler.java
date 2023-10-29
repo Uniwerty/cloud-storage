@@ -26,19 +26,29 @@ public class LoginHandler implements CommandHandler {
         String password = command.arguments()[1];
         if (authService.isUserAuthorized(login)) {
             channel.writeAndFlush(
-                    new ServerResponse(false, "The specified user is already logged in.")
+                    new ServerResponse(
+                            false,
+                            command.name(),
+                            "The specified user is already logged in."
+                    )
             );
             return;
         }
         if (!authService.isUserRegistered(login)) {
-            channel.writeAndFlush(new ServerResponse(false, "Invalid login. Try again."));
+            channel.writeAndFlush(
+                    new ServerResponse(
+                            false,
+                            command.name(),
+                            "Invalid login. Try again."
+                    )
+            );
             return;
         }
         if (!authService.identifiersMatch(login, password)) {
             loginAttempts--;
             if (loginAttempts == 0) {
                 channel.writeAndFlush(
-                        new ServerResponse(false, "You have no more attempts to log in.")
+                        new ServerResponse(false, command.name(), "You have no more attempts to log in.")
                 );
                 logger.info(
                         "Client {} was forcibly disconnected because it had no more attempts to log in",
@@ -47,12 +57,12 @@ public class LoginHandler implements CommandHandler {
                 ctx.close();
                 return;
             }
-            channel.writeAndFlush(new ServerResponse(false, "Invalid password. Try again."));
+            channel.writeAndFlush(new ServerResponse(false, command.name(), "Invalid password. Try again."));
             return;
         }
         authService.authorizeUser(login);
         channel.attr(USER_KEY).set(login);
         logger.info("Client {} authorized successfully", login);
-        channel.writeAndFlush(new ServerResponse(true, "Authorized successfully."));
+        channel.writeAndFlush(new ServerResponse(true, command.name(), "Authorized successfully."));
     }
 }

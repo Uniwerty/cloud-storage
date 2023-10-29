@@ -32,6 +32,7 @@ public class RegisterHandler implements CommandHandler {
             channel.writeAndFlush(
                     new ServerResponse(
                             false,
+                            command.name(),
                             "The entered login is already registered. Choose another login."
                     )
             );
@@ -39,13 +40,13 @@ public class RegisterHandler implements CommandHandler {
         }
         if (!password.equals(repeatedPassword)) {
             channel.writeAndFlush(
-                    new ServerResponse(false, "The entered passwords mismatch. Try again.")
+                    new ServerResponse(false, command.name(), "The entered passwords mismatch. Try again.")
             );
             return;
         }
         authService.registerUser(login, password);
         storageService.createUserDirectory(login);
         logger.info("Client {} registered successfully", login);
-        channel.writeAndFlush(new ServerResponse(true, "Registered successfully."));
+        channel.writeAndFlush(new ServerResponse(true, command.name(), "Registered successfully."));
     }
 }

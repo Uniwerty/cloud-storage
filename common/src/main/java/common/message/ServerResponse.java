@@ -1,4 +1,4 @@
 package common.message;
 
-public record ServerResponse(boolean success, String message) {
+public record ServerResponse(boolean success, String command, String message) {
 }

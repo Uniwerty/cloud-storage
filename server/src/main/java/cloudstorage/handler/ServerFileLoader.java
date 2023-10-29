@@ -2,6 +2,7 @@ package cloudstorage.handler;
 
 import cloudstorage.service.StorageService;
 import common.channel.ChannelManager;
+import common.command.Command;
 import common.message.ServerResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,7 +25,7 @@ public class ServerFileLoader extends SimpleChannelInboundHandler<byte[]> {
         String filepath = channel.attr(FILE_KEY).get();
         channel.attr(STORAGE_KEY).get().storeFile(login, filepath, fileBytes);
         logger.info("Stored {} from {} successfully", filepath, login);
-        channel.writeAndFlush(new ServerResponse(true, "Stored successfully"));
+        channel.writeAndFlush(new ServerResponse(true, Command.STORE.getName(), "Stored successfully"));
         channel.attr(MANAGER_KEY).get().setStandardHandlers(channel);
     }
 }

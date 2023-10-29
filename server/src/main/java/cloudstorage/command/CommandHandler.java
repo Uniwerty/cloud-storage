@@ -29,6 +29,7 @@ public interface CommandHandler {
             ctx.channel().writeAndFlush(
                     new ServerResponse(
                             false,
+                            command.getName(),
                             String.format(
                                     "Invalid arguments number. Enter %s %s",
                                     command.getName(),
@@ -50,6 +51,7 @@ public interface CommandHandler {
             channel.writeAndFlush(
                     new ServerResponse(
                             false,
+                            command.getName(),
                             String.format(
                                     "Cannot execute %s command from unauthorized client. Please log in",
                                     command.getName()

@@ -30,6 +30,6 @@ public class MoveHandler implements CommandHandler {
         String to = command.arguments()[1];
         channel.attr(STORAGE_KEY).get().moveFile(login, from, to);
         logger.info("Successfully moved {} to {} for {}", from, to, login);
-        channel.writeAndFlush(new ServerResponse(true, "Moved successfully"));
+        channel.writeAndFlush(new ServerResponse(true, command.name(), "Moved successfully"));
     }
 }

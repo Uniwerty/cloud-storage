@@ -15,6 +15,7 @@ public class UnknownCommandHandler implements CommandHandler {
         ctx.channel().writeAndFlush(
                 new ServerResponse(
                         false,
+                        command.name(),
                         "Unknown command given. Use help to see available commands."
                 )
         );

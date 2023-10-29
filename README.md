@@ -17,5 +17,8 @@ in [client.properties](client/src/main/resources/cloudstorage/client.properties)
 
 - `register <login> <password> <password>` – register on the server
 - `login <login> <password>` – login to the server
+- `store <from> <to>` – store file from client path to server path
+- `load <from> <to>` – load file from server path to client path
+- `move <from> <to>` – move file on server
 - `quit` – disconnect from the server
 - `help` – print available commands with description

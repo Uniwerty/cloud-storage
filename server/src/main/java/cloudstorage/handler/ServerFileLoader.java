@@ -25,7 +25,7 @@ public class ServerFileLoader extends SimpleChannelInboundHandler<byte[]> {
         String filepath = channel.attr(FILE_KEY).get();
         channel.attr(STORAGE_KEY).get().storeFile(login, filepath, fileBytes);
         logger.info("Stored {} from {} successfully", filepath, login);
-        channel.writeAndFlush(new ServerResponse(true, Command.STORE.getName(), "Stored successfully"));
         channel.attr(MANAGER_KEY).get().setStandardHandlers(channel);
+        channel.writeAndFlush(new ServerResponse(true, Command.STORE.getName(), "Stored successfully"));
     }
 }

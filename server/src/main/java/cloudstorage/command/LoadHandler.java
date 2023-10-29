@@ -3,6 +3,7 @@ package cloudstorage.command;
 import common.channel.ChannelManager;
 import common.command.Command;
 import common.message.ClientCommand;
+import common.message.ServerResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -27,6 +28,7 @@ public class LoadHandler implements CommandHandler {
         if (checkUnauthorizedClient(channel, login, Command.LOAD, logger)) {
             return;
         }
+        channel.writeAndFlush(new ServerResponse(true, Command.LOAD.getName(), "File loading confirmed"));
         String path = command.arguments()[0];
         ChannelManager channelManager = channel.attr(MANAGER_KEY).get();
         channelManager.setFileDownloadHandlers(channel);
@@ -37,6 +39,7 @@ public class LoadHandler implements CommandHandler {
         );
         onWritePromise.sync();
         channelManager.setStandardHandlers(channel);
+        channel.writeAndFlush(new ServerResponse(true, Command.LOAD.getName(), "Sent successfully"));
         logger.info("Sent {} to {} successfully", path, login);
     }
 }

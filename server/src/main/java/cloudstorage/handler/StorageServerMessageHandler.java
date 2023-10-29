@@ -54,7 +54,7 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Cli
                 msg.arguments()
         );
         try {
-            Command command = Enum.valueOf(Command.class, msg.name().toUpperCase());
+            Command command = Command.valueOf(msg.name().toUpperCase());
             commandHandlers.getOrDefault(command, unknownCmdHandler).handle(ctx, msg);
         } catch (IllegalArgumentException e) {
             unknownCmdHandler.handle(ctx, msg);

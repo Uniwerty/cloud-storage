@@ -2,6 +2,7 @@ package cloudstorage.response;
 
 import common.command.Command;
 import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.Channel;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ public class MessageSender implements ResponseHandler {
     private final Scanner inScanner = new Scanner(System.in);
 
     @Override
-    public void handle(Channel channel) throws Exception {
+    public void handle(Channel channel, ServerMessage message) throws Exception {
         sendMessage(channel);
     }
 

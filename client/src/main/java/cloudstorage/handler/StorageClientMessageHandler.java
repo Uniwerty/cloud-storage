@@ -35,9 +35,9 @@ public class StorageClientMessageHandler extends SimpleChannelInboundHandler<Ser
         Channel channel = ctx.channel();
         Command command = Command.valueOf(response.command().toUpperCase());
         if (channel.attr(NEED_CONFIRM_KEY).get() && response.success()) {
-            responseHandlers.getOrDefault(command, messageSender).handle(channel);
+            responseHandlers.getOrDefault(command, messageSender).handle(channel, response);
         } else {
-            messageSender.handle(channel);
+            messageSender.handle(channel, response);
         }
     }
 

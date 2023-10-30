@@ -6,8 +6,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
-import io.netty.handler.codec.bytes.ByteArrayEncoder;
 import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * The class for initializing channels and changing handlers dynamically.
@@ -35,22 +35,24 @@ public abstract class ChannelManager extends ChannelInitializer<SocketChannel> {
 
     /**
      * Sets handlers to download file after request received.
+     *
      * @param channel a {@link Channel} to set handlers
      */
     public void setFileDownloadHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
         removeAll(pipeline);
-        pipeline.addLast("fileBytesEncoder", new ByteArrayEncoder());
+        pipeline.addLast("fileDownloader", new ChunkedWriteHandler());
     }
 
     /**
      * Sets handlers to upload file after request sent
+     *
      * @param channel a {@link Channel} to set handlers
      */
     public void setFileUploadHandlers(Channel channel) {
         ChannelPipeline pipeline = channel.pipeline();
         removeAll(pipeline);
-        pipeline.addLast("fileBytesDecoder", new ByteArrayDecoder())
+        pipeline.addLast("chunkUploader", new ChunkedWriteHandler())
                 .addLast("fileUploader", fileUploader())
                 .addLast("jsonEncoder", jsonEncoderImpl());
     }

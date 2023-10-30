@@ -1,5 +1,6 @@
 package cloudstorage.command;
 
+import cloudstorage.service.StorageService;
 import common.channel.ChannelManager;
 import common.command.Command;
 import common.message.ClientMessage;
@@ -28,13 +29,21 @@ public class LoadHandler implements CommandHandler {
         if (checkUnauthorizedClient(channel, login, Command.LOAD, logger)) {
             return;
         }
-        channel.writeAndFlush(new ServerMessage(true, Command.LOAD.getName(), "File loading confirmed"));
         String path = command.arguments()[0];
+        StorageService storageService = channel.attr(STORAGE_KEY).get();
+        channel.writeAndFlush(
+                new ServerMessage(
+                        true,
+                        Command.LOAD.getName(),
+                        "File loading confirmed",
+                        storageService.getFileSize(login, path)
+                )
+        );
         ChannelManager channelManager = channel.attr(MANAGER_KEY).get();
         channelManager.setFileDownloadHandlers(channel);
         ChannelPromise onWritePromise = channel.newPromise();
         channel.writeAndFlush(
-                channel.attr(STORAGE_KEY).get().downloadFile(login, path),
+                storageService.getChunkedFile(login, path),
                 onWritePromise
         );
         onWritePromise.sync();

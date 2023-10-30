@@ -3,8 +3,8 @@ package cloudstorage.handler;
 import cloudstorage.service.StorageService;
 import common.channel.ChannelManager;
 import common.command.Command;
-import common.message.ServerResponse;
 import common.message.ServerMessage;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -22,16 +22,18 @@ public class ServerFileUploader extends SimpleChannelInboundHandler<ByteBuf> {
     private static final AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
     private static final AttributeKey<Long> FILE_SIZE_KEY = AttributeKey.valueOf("fileSize");
     private static final Logger logger = LoggerFactory.getLogger(ServerFileUploader.class);
+    private long bytesRead = 0;
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf fileChunk) throws Exception {
         Channel channel = ctx.channel();
         String login = channel.attr(USER_KEY).get();
-        String filepath = channel.attr(FILE_KEY).get();
-        channel.attr(STORAGE_KEY).get().storeFile(login, filepath, fileBytes);
-        logger.info("Stored {} from {} successfully", filepath, login);
-        channel.attr(MANAGER_KEY).get().setStandardHandlers(channel);
-        channel.writeAndFlush(new ServerResponse(true, Command.STORE.getName(), "Stored successfully"));
+        String filePath = channel.attr(FILE_KEY).get();
+        bytesRead += channel.attr(STORAGE_KEY).get().storeFileChunk(login, filePath, fileChunk);
+        if (bytesRead == channel.attr(FILE_SIZE_KEY).get()) {
+            channel.attr(MANAGER_KEY).get().setStandardHandlers(channel);
             channel.writeAndFlush(new ServerMessage(true, Command.STORE.getName(), "Stored successfully"));
+            logger.info("Stored {} from {} successfully", filePath, login);
+        }
     }
 }

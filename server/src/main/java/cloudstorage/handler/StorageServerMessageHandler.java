@@ -14,7 +14,7 @@ import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
 import common.channel.ChannelManager;
 import common.command.Command;
-import common.message.ClientCommand;
+import common.message.ClientMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class StorageServerMessageHandler extends SimpleChannelInboundHandler<ClientCommand> {
+public class StorageServerMessageHandler extends SimpleChannelInboundHandler<ClientMessage> {
     private static final AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     private static final AttributeKey<AuthenticationService> AUTH_KEY = AttributeKey.valueOf("auth");
     private static final AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
@@ -46,7 +46,7 @@ public class StorageServerMessageHandler extends SimpleChannelInboundHandler<Cli
             );
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ClientCommand msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, ClientMessage msg) throws Exception {
         logger.info(
                 "Message from {} client: {} {}",
                 ctx.channel().attr(USER_KEY).get(),

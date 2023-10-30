@@ -1,8 +1,8 @@
 package cloudstorage.command;
 
 import common.command.Command;
-import common.message.ClientCommand;
-import common.message.ServerResponse;
+import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +21,8 @@ public class HelpHandler implements CommandHandler {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, ClientCommand command) {
+    public void handle(ChannelHandlerContext ctx, ClientMessage command) {
         logger.info("Sent commands usage to client");
-        ctx.channel().writeAndFlush(new ServerResponse(true, command.name(), COMMANDS_USAGE));
+        ctx.channel().writeAndFlush(new ServerMessage(true, command.name(), COMMANDS_USAGE));
     }
 }

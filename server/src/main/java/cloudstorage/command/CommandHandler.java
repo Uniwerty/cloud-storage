@@ -4,8 +4,8 @@ import cloudstorage.service.AuthenticationService;
 import cloudstorage.service.StorageService;
 import common.channel.ChannelManager;
 import common.command.Command;
-import common.message.ClientCommand;
-import common.message.ServerResponse;
+import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -17,17 +17,18 @@ public interface CommandHandler {
     AttributeKey<StorageService> STORAGE_KEY = AttributeKey.valueOf("storage");
     AttributeKey<String> USER_KEY = AttributeKey.valueOf("user");
     AttributeKey<String> FILE_KEY = AttributeKey.valueOf("file");
+    AttributeKey<Long> FILE_SIZE_KEY = AttributeKey.valueOf("fileSize");
 
-    void handle(ChannelHandlerContext ctx, ClientCommand command) throws Exception;
+    void handle(ChannelHandlerContext ctx, ClientMessage command) throws Exception;
 
     static boolean checkInvalidArguments(ChannelHandlerContext ctx,
-                                         ClientCommand clientCommand,
+                                         ClientMessage clientMessage,
                                          Command command,
                                          Logger logger) {
-        if (clientCommand.arguments().length != command.getArgumentsNumber()) {
+        if (clientMessage.arguments().length != command.getArgumentsNumber()) {
             logger.info("Invalid arguments number for {} given", command.getName());
             ctx.channel().writeAndFlush(
-                    new ServerResponse(
+                    new ServerMessage(
                             false,
                             command.getName(),
                             String.format(
@@ -49,7 +50,7 @@ public interface CommandHandler {
         if (!channel.attr(AUTH_KEY).get().isUserAuthorized(login)) {
             logger.info("{} command execution refused: client is not authorized", command.getName());
             channel.writeAndFlush(
-                    new ServerResponse(
+                    new ServerMessage(
                             false,
                             command.getName(),
                             String.format(

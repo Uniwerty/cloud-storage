@@ -7,7 +7,7 @@ import cloudstorage.response.ResponseHandler;
 import cloudstorage.response.StoreResponseHandler;
 import common.channel.ChannelManager;
 import common.command.Command;
-import common.message.ServerResponse;
+import common.message.ServerMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class StorageClientMessageHandler extends SimpleChannelInboundHandler<ServerResponse> {
+public class StorageClientMessageHandler extends SimpleChannelInboundHandler<ServerMessage> {
     private static final AttributeKey<ChannelManager> MANAGER_KEY = AttributeKey.valueOf("manager");
     private static final AttributeKey<Boolean> NEED_CONFIRM_KEY = AttributeKey.valueOf("needConfirm");
     private static final Logger logger = LoggerFactory.getLogger(StorageClientMessageHandler.class);
@@ -30,7 +30,7 @@ public class StorageClientMessageHandler extends SimpleChannelInboundHandler<Ser
             );
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ServerResponse response) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, ServerMessage response) throws Exception {
         logger.info("Server response: {}", response.message());
         Channel channel = ctx.channel();
         Command command = Command.valueOf(response.command().toUpperCase());

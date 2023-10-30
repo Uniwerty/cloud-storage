@@ -2,8 +2,8 @@ package cloudstorage.command;
 
 import common.channel.ChannelManager;
 import common.command.Command;
-import common.message.ClientCommand;
-import common.message.ServerResponse;
+import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -19,7 +19,7 @@ public class LoadHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(LoadHandler.class);
 
     @Override
-    public void handle(ChannelHandlerContext ctx, ClientCommand command) throws IOException, InterruptedException {
+    public void handle(ChannelHandlerContext ctx, ClientMessage command) throws IOException, InterruptedException {
         if (checkInvalidArguments(ctx, command, Command.LOAD, logger)) {
             return;
         }
@@ -28,7 +28,7 @@ public class LoadHandler implements CommandHandler {
         if (checkUnauthorizedClient(channel, login, Command.LOAD, logger)) {
             return;
         }
-        channel.writeAndFlush(new ServerResponse(true, Command.LOAD.getName(), "File loading confirmed"));
+        channel.writeAndFlush(new ServerMessage(true, Command.LOAD.getName(), "File loading confirmed"));
         String path = command.arguments()[0];
         ChannelManager channelManager = channel.attr(MANAGER_KEY).get();
         channelManager.setFileDownloadHandlers(channel);
@@ -39,7 +39,7 @@ public class LoadHandler implements CommandHandler {
         );
         onWritePromise.sync();
         channelManager.setStandardHandlers(channel);
-        channel.writeAndFlush(new ServerResponse(true, Command.LOAD.getName(), "Sent successfully"));
+        channel.writeAndFlush(new ServerMessage(true, Command.LOAD.getName(), "Sent successfully"));
         logger.info("Sent {} to {} successfully", path, login);
     }
 }

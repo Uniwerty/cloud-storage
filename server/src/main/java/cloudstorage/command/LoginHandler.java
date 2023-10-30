@@ -2,8 +2,8 @@ package cloudstorage.command;
 
 import cloudstorage.service.AuthenticationService;
 import common.command.Command;
-import common.message.ClientCommand;
-import common.message.ServerResponse;
+import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ public class LoginHandler implements CommandHandler {
     private int loginAttempts = 3;
 
     @Override
-    public void handle(ChannelHandlerContext ctx, ClientCommand command) {
+    public void handle(ChannelHandlerContext ctx, ClientMessage command) {
         if (checkInvalidArguments(ctx, command, Command.LOGIN, logger)) {
             return;
         }
@@ -26,7 +26,7 @@ public class LoginHandler implements CommandHandler {
         String password = command.arguments()[1];
         if (authService.isUserAuthorized(login)) {
             channel.writeAndFlush(
-                    new ServerResponse(
+                    new ServerMessage(
                             false,
                             command.name(),
                             "The specified user is already logged in."
@@ -36,7 +36,7 @@ public class LoginHandler implements CommandHandler {
         }
         if (!authService.isUserRegistered(login)) {
             channel.writeAndFlush(
-                    new ServerResponse(
+                    new ServerMessage(
                             false,
                             command.name(),
                             "Invalid login. Try again."
@@ -48,7 +48,7 @@ public class LoginHandler implements CommandHandler {
             loginAttempts--;
             if (loginAttempts == 0) {
                 channel.writeAndFlush(
-                        new ServerResponse(false, command.name(), "You have no more attempts to log in.")
+                        new ServerMessage(false, command.name(), "You have no more attempts to log in.")
                 );
                 logger.info(
                         "Client {} was forcibly disconnected because it had no more attempts to log in",
@@ -57,12 +57,12 @@ public class LoginHandler implements CommandHandler {
                 ctx.close();
                 return;
             }
-            channel.writeAndFlush(new ServerResponse(false, command.name(), "Invalid password. Try again."));
+            channel.writeAndFlush(new ServerMessage(false, command.name(), "Invalid password. Try again."));
             return;
         }
         authService.authorizeUser(login);
         channel.attr(USER_KEY).set(login);
         logger.info("Client {} authorized successfully", login);
-        channel.writeAndFlush(new ServerResponse(true, command.name(), "Authorized successfully."));
+        channel.writeAndFlush(new ServerMessage(true, command.name(), "Authorized successfully."));
     }
 }

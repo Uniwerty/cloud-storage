@@ -1,8 +1,8 @@
 package cloudstorage.command;
 
 import common.command.Command;
-import common.message.ClientCommand;
-import common.message.ServerResponse;
+import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ public class MoveHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(MoveHandler.class);
 
     @Override
-    public void handle(ChannelHandlerContext ctx, ClientCommand command) throws IOException {
+    public void handle(ChannelHandlerContext ctx, ClientMessage command) throws IOException {
         if (checkInvalidArguments(ctx, command, Command.MOVE, logger)) {
             return;
         }
@@ -30,6 +30,6 @@ public class MoveHandler implements CommandHandler {
         String to = command.arguments()[1];
         channel.attr(STORAGE_KEY).get().moveFile(login, from, to);
         logger.info("Successfully moved {} to {} for {}", from, to, login);
-        channel.writeAndFlush(new ServerResponse(true, command.name(), "Moved successfully"));
+        channel.writeAndFlush(new ServerMessage(true, command.name(), "Moved successfully"));
     }
 }

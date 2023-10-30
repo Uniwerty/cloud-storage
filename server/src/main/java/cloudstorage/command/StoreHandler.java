@@ -1,8 +1,8 @@
 package cloudstorage.command;
 
 import common.command.Command;
-import common.message.ClientCommand;
-import common.message.ServerResponse;
+import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -15,7 +15,7 @@ public class StoreHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(StoreHandler.class);
 
     @Override
-    public void handle(ChannelHandlerContext ctx, ClientCommand command) {
+    public void handle(ChannelHandlerContext ctx, ClientMessage command) {
         Channel channel = ctx.channel();
         if (checkInvalidArguments(ctx, command, Command.STORE, logger)) {
             return;
@@ -24,9 +24,10 @@ public class StoreHandler implements CommandHandler {
         if (checkUnauthorizedClient(channel, login, Command.STORE, logger)) {
             return;
         }
-        channel.attr(MANAGER_KEY).get().setFileUploadHandlers(channel);
         channel.attr(FILE_KEY).set(command.arguments()[1]);
-        channel.writeAndFlush(new ServerResponse(true, command.name(), "Waiting for file loading"));
+        channel.attr(FILE_SIZE_KEY).set(command.fileSize());
+        channel.attr(MANAGER_KEY).get().setFileUploadHandlers(channel);
+        channel.writeAndFlush(new ServerMessage(true, command.name(), "Waiting for file loading"));
         logger.info("File storing allowed");
     }
 }

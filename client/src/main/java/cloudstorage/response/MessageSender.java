@@ -1,9 +1,12 @@
 package cloudstorage.response;
 
 import common.command.Command;
-import common.message.ClientCommand;
+import common.message.ClientMessage;
 import io.netty.channel.Channel;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 public class MessageSender implements ResponseHandler {
@@ -19,9 +22,9 @@ public class MessageSender implements ResponseHandler {
         inScanner.close();
     }
 
-    private void sendMessage(Channel channel) {
+    private void sendMessage(Channel channel) throws IOException {
         String message = inScanner.nextLine();
-        ClientCommand command = createClientCommand(message);
+        ClientMessage command = createClientCommand(message);
         setConfirmRequirement(channel, command);
         channel.writeAndFlush(command);
     }
@@ -30,13 +33,13 @@ public class MessageSender implements ResponseHandler {
      * Sets the indicator that server confirmation on command required
      *
      * @param channel the connection {@link Channel}
-     * @param command the {@link ClientCommand} which execution needs to be allowed.
+     * @param command the {@link ClientMessage} which execution needs to be allowed.
      */
-    private static void setConfirmRequirement(Channel channel, ClientCommand command) {
-        if (checkCommandTypeMatching(command, Command.STORE)) {
+    private static void setConfirmRequirement(Channel channel, ClientMessage command) {
+        if (checkCommandTypeMatching(command.name(), command.arguments(), Command.STORE)) {
             channel.attr(NEED_CONFIRM_KEY).set(true);
             channel.attr(FILE_KEY).set(command.arguments()[0]);
-        } else if (checkCommandTypeMatching(command, Command.LOAD)) {
+        } else if (checkCommandTypeMatching(command.name(), command.arguments(), Command.LOAD)) {
             channel.attr(NEED_CONFIRM_KEY).set(true);
             channel.attr(FILE_KEY).set(command.arguments()[1]);
         } else {
@@ -44,7 +47,7 @@ public class MessageSender implements ResponseHandler {
         }
     }
 
-    private static ClientCommand createClientCommand(String message) {
+    private static ClientMessage createClientCommand(String message) throws IOException {
         String[] command = message.trim().split(WHITESPACE_REGEX, 2);
         String[] arguments;
         if (command.length == 2) {
@@ -52,11 +55,15 @@ public class MessageSender implements ResponseHandler {
         } else {
             arguments = new String[0];
         }
-        return new ClientCommand(command[0], arguments);
+        long fileSize = 0;
+        if (checkCommandTypeMatching(command[0], arguments, Command.STORE)) {
+            fileSize = Files.size(Path.of(arguments[0]));
+        }
+        return new ClientMessage(command[0], arguments, fileSize);
     }
 
-    private static boolean checkCommandTypeMatching(ClientCommand clientCommand, Command command) {
-        return command.getArgumentsNumber() == clientCommand.arguments().length
-                && command.getName().equals(clientCommand.name());
+    private static boolean checkCommandTypeMatching(String name, String[] arguments, Command command) {
+        return command.getArgumentsNumber() == arguments.length
+                && command.getName().equals(name);
     }
 }

@@ -5,14 +5,14 @@ import cloudstorage.handler.StorageServerMessageHandler;
 import common.channel.ChannelManager;
 import common.handler.JsonDecoder;
 import common.handler.JsonEncoder;
-import common.message.ClientCommand;
-import common.message.ServerResponse;
+import common.message.ClientMessage;
+import common.message.ServerMessage;
 import io.netty.channel.ChannelHandler;
 
 public class ServerChannelManager extends ChannelManager {
     @Override
     protected ChannelHandler jsonDecoderImpl() {
-        return new JsonDecoder<>(ClientCommand.class);
+        return new JsonDecoder<>(ClientMessage.class);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class ServerChannelManager extends ChannelManager {
 
     @Override
     protected ChannelHandler jsonEncoderImpl() {
-        return new JsonEncoder<>(ServerResponse.class);
+        return new JsonEncoder<>(ServerMessage.class);
     }
 
     @Override

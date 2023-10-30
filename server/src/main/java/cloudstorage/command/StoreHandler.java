@@ -14,6 +14,12 @@ import static cloudstorage.command.CommandHandler.checkUnauthorizedClient;
 public class StoreHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(StoreHandler.class);
 
+    /**
+     * Prepares for uploading file from client
+     *
+     * @param ctx     a {@link ChannelHandlerContext} of the handler
+     * @param command the received {@link ClientMessage} with store command
+     */
     @Override
     public void handle(ChannelHandlerContext ctx, ClientMessage command) {
         Channel channel = ctx.channel();

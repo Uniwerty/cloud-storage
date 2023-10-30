@@ -19,6 +19,15 @@ import static cloudstorage.command.CommandHandler.checkUnauthorizedClient;
 public class LoadHandler implements CommandHandler {
     private static final Logger logger = LoggerFactory.getLogger(LoadHandler.class);
 
+    /**
+     * If command is correct and client is authorized,
+     * notifies client about downloading and sends {@code ChunkedFile}.
+     *
+     * @param ctx     a {@link ChannelHandlerContext} of the handler
+     * @param command the {@link ClientMessage} received
+     * @throws IOException          if some exception occurred during IO actions
+     * @throws InterruptedException if thread was interrupted
+     */
     @Override
     public void handle(ChannelHandlerContext ctx, ClientMessage command) throws IOException, InterruptedException {
         if (checkInvalidArguments(ctx, command, Command.LOAD, logger)) {
@@ -39,6 +48,15 @@ public class LoadHandler implements CommandHandler {
                         storageService.getFileSize(login, path)
                 )
         );
+        sendChunkedFile(channel, storageService, login, path);
+        channel.writeAndFlush(new ServerMessage(true, Command.LOAD.getName(), "Sent successfully"));
+        logger.info("Sent {} to {} successfully", path, login);
+    }
+
+    private static void sendChunkedFile(Channel channel,
+                                        StorageService storageService,
+                                        String login,
+                                        String path) throws IOException, InterruptedException {
         ChannelManager channelManager = channel.attr(MANAGER_KEY).get();
         channelManager.setFileDownloadHandlers(channel);
         ChannelPromise onWritePromise = channel.newPromise();
@@ -48,7 +66,5 @@ public class LoadHandler implements CommandHandler {
         );
         onWritePromise.sync();
         channelManager.setStandardHandlers(channel);
-        channel.writeAndFlush(new ServerMessage(true, Command.LOAD.getName(), "Sent successfully"));
-        logger.info("Sent {} to {} successfully", path, login);
     }
 }

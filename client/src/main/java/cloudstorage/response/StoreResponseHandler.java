@@ -21,8 +21,8 @@ public class StoreResponseHandler implements ResponseHandler {
     public void handle(Channel channel, ServerMessage response) throws IOException, InterruptedException {
         ChannelManager channelManager = channel.attr(MANAGER_KEY).get();
         channelManager.setFileDownloadHandlers(channel);
-        ChannelPromise onWritePromise = channel.newPromise();
         String filepath = channel.attr(FILE_KEY).get();
+        ChannelPromise onWritePromise = channel.newPromise();
         channel.writeAndFlush(new ChunkedFile(new File(filepath)), onWritePromise);
         onWritePromise.sync();
         channel.attr(NEED_CONFIRM_KEY).set(false);

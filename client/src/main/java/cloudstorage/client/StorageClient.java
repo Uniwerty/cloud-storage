@@ -1,8 +1,11 @@
 package cloudstorage.client;
 
-import cloudstorage.channel.ClientChannelInitializer;
+import cloudstorage.channel.ClientChannelManager;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
@@ -11,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Scanner;
 
 public class StorageClient {
-    private static final String QUIT_COMMAND = "quit";
     private static final Logger logger = LoggerFactory.getLogger(StorageClient.class);
     private final Scanner inScanner = new Scanner(System.in);
     private final String host;
@@ -28,11 +30,11 @@ public class StorageClient {
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(workerGroup)
                     .channel(NioSocketChannel.class)
-                    .handler(new ClientChannelInitializer())
+                    .handler(new ClientChannelManager())
                     .option(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture future = bootstrap.connect(host, port).sync();
-            sendMessages(future.channel());
-            future.channel().closeFuture().sync();
+            Channel channel = future.channel();
+            channel.closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
             inScanner.close();
@@ -41,15 +43,5 @@ public class StorageClient {
 
     public static void logError(String message) {
         logger.error("Exception occurred: {}", message);
-    }
-
-    private void sendMessages(Channel channel) {
-        while (channel.isOpen()) {
-            String message = inScanner.nextLine();
-            channel.writeAndFlush(message);
-            if (message.equals(QUIT_COMMAND)) {
-                break;
-            }
-        }
     }
 }

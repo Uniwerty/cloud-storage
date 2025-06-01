@@ -25,6 +25,10 @@ public class AuthenticationService {
         authorizedUsers.add(login);
     }
 
+    public void logOutUser(String login) {
+        authorizedUsers.remove(login);
+    }
+
     public boolean identifiersMatch(String login, String password) {
         return Objects.equals(password, userIdentifiers.get(login));
     }
